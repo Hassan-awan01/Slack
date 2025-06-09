@@ -1,2 +1,2 @@
 "use Client";
-export type SignFlow = "SignIn" | "SignUp";
+export type SignFlow = "signIn" | "signUp";

@@ -1,10 +1,7 @@
 "use client";
 
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-
 const WorkSpacePage = () => {
-  const workspaceId = useWorkspaceId();
-  return <div>{workspaceId}</div>;
+  return <div>Workspace Id</div>;
 };
 
 export default WorkSpacePage;

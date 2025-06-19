@@ -23,7 +23,7 @@ const WorkSpaceLayout = ({ children }: WorkSpaceLayoutProps) => {
         <ResizablePanelGroup direction="horizontal" autoSaveId="hi-workspace">
           <ResizablePanel
             defaultSize={20}
-            minSize={20}
+            minSize={15}
             className=" bg-[#5E2C5F]"
           >
             <WorkspaceSidebar />

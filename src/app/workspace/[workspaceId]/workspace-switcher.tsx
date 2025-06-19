@@ -19,7 +19,7 @@ export const WorkspaceSwitcher = () => {
   const router = useRouter();
   const workspaceId = useGetWorkspaceId();
   const { data: workspace, isLoading: workspaceLoading } =
-    useGetWorkspaceDataById({ id: workspaceId });
+    useGetWorkspaceDataById({ workspaceId });
   const { data: workspaces, isLoading: workspacesLoading } = useWorkspace();
 
   const filteredWorkspaces = workspaces?.filter(

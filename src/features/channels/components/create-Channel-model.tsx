@@ -8,57 +8,63 @@ import {
   DialogTitle,
   //   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useCreateWorkspaceModel } from "../store/use-create-workspace-model";
+import { useCreateChannelModel } from "../store/use-create-channel-model";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useCreateWorkspace } from "../api/use-create-workspace-hook";
+import { useCreateChannel } from "../api/use-create-channel-hook";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useGetWorkspaceId } from "@/hooks/use-Get-workspace-id";
 
-export const CreateWorkspaceModel = () => {
+export const CreateChannelModel = () => {
   const router = useRouter();
-  const [open, setOpen] = useCreateWorkspaceModel();
+  const [open, setOpen] = useCreateChannelModel();
   const [name, setName] = useState("");
-  const { mutate, isPending } = useCreateWorkspace();
-
+  const { mutate, isPending } = useCreateChannel();
+  const workspaceId = useGetWorkspaceId();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     mutate(
       {
         name,
+        workspaceId,
       },
       {
         onSuccess(id) {
           toast.success("WorkSpace Created");
-          router.push(`/workspace/${id}`);
-          handelChange();
+          router.push(`/workspace/${workspaceId}/channel/${id}`);
+          handelClose();
         },
       }
     );
   };
 
-  const handelChange = () => {
+  const handelClose = () => {
     setOpen(false);
     setName("");
   };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\s+/g, "-").toLowerCase();
+    setName(value);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={handelChange}>
+    <Dialog open={open} onOpenChange={handelClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create a WorkSpace</DialogTitle>
+          <DialogTitle>Create a Change</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-            }}
+            onChange={handleChange}
             disabled={isPending}
             required
             autoFocus
             minLength={3}
-            placeholder="WorkSpace Name e.g. 'Home', 'Personal', 'Team'"
+            placeholder="WorkSpace Name e.g. hello-channel"
           />
         </form>
         <div className="flex justify-end">

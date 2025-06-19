@@ -1,20 +1,43 @@
 import { useCurrentMember } from "@/features/members/api/use-current-member";
 import { useGetWorkspaceDataById } from "@/features/workspace/api/use-get-workspace-ById";
 import { useGetWorkspaceId } from "@/hooks/use-Get-workspace-id";
-import { AlertTriangle, Loader } from "lucide-react";
+import {
+  AlertTriangle,
+  HashIcon,
+  Loader,
+  MessageSquareText,
+  SendHorizonal,
+} from "lucide-react";
 import { WorkSpaceHeader } from "./workspace-header";
+import { SidebarItem } from "./sidebar-item";
+import { useGetChannels } from "@/features/channels/api/use-get-channels";
+import { WorkspaceSection } from "./workspace-section";
+import { useGetMembers } from "@/features/members/api/use-get-members";
+import { UserItem } from "./user-item";
+import { useCreateChannelModel } from "@/features/channels/store/use-create-channel-model";
+import { useMemo } from "react";
+import { useGetChannelId } from "@/hooks/use-Get-Channel-id";
 
 export const WorkspaceSidebar = () => {
-  const id = useGetWorkspaceId();
-  const workspaceId = id;
+  const workspaceId = useGetWorkspaceId();
   const { data: workspaceData, isLoading: workspaceLoading } =
-    useGetWorkspaceDataById({ id });
+    useGetWorkspaceDataById({ workspaceId });
 
   const { data: memberData, isLoading: memberLoading } = useCurrentMember({
     workspaceId,
   });
 
-  const isAdmin = memberData?.role === "admin";
+  const { data: channels, isLoading: channelsLoading } = useGetChannels({
+    workspaceId,
+  });
+
+  const { data: members, isLoading: membersLoading } = useGetMembers({
+    workspaceId,
+  });
+
+  const [_open, setOpen] = useCreateChannelModel();
+  const isAdmin = useMemo(() => memberData?.role === "admin", [memberData]);
+  const channelId = useGetChannelId();
 
   if (memberLoading || workspaceLoading) {
     return (
@@ -31,5 +54,52 @@ export const WorkspaceSidebar = () => {
       </div>
     );
   }
-  return <WorkSpaceHeader workspace={workspaceData} isAdmin={isAdmin} />;
+  return (
+    <div className="flex flex-col bg-[#5E2C5F] h-full">
+      <WorkSpaceHeader workspace={workspaceData} isAdmin={isAdmin} />
+      <div className="flex flex-col px-2 mt-3">
+        <SidebarItem
+          label="Thread"
+          icon={MessageSquareText}
+          id="thread"
+          // variant="default"
+        />
+        <SidebarItem
+          label="Draft & Sent"
+          icon={SendHorizonal}
+          id="draft"
+          // variant="acti"
+        />
+      </div>
+      <WorkspaceSection
+        label="Channels"
+        hint="New Channels"
+        onNew={isAdmin ? () => setOpen(true) : undefined}
+      >
+        {channels?.map((item) => (
+          <SidebarItem
+            key={item._id}
+            label={item.name}
+            icon={HashIcon}
+            id={item._id}
+            variant={channelId === item._id ? "active" : "default"}
+          />
+        ))}
+      </WorkspaceSection>
+      <WorkspaceSection
+        label="Direct Messages"
+        hint="New Direct Messages"
+        onNew={() => {}}
+      >
+        {members?.map((item) => (
+          <UserItem
+            key={item._id}
+            label={item.user.name}
+            image={item.user.image}
+            id={item._id}
+          />
+        ))}
+      </WorkspaceSection>
+    </div>
+  );
 };

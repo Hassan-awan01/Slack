@@ -2,6 +2,7 @@
 
 import { CreateWorkspaceModel } from "@/features/workspace/components/create-worksoace-model";
 import { useEffect, useState } from "react";
+import { CreateChannelModel } from "@/features/channels/components/create-Channel-model";
 
 export const Models = () => {
   const [mounted, setMounted] = useState(false);
@@ -9,5 +10,10 @@ export const Models = () => {
     setMounted(true);
   }, [setMounted]);
   if (!mounted) return null;
-  return <CreateWorkspaceModel />;
+  return (
+    <>
+      <CreateChannelModel />
+      <CreateWorkspaceModel />
+    </>
+  );
 };

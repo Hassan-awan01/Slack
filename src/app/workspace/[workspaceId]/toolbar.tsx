@@ -7,7 +7,7 @@ import { Info, Search } from "lucide-react";
 
 export const ToolBar = () => {
   const workspaceId = useGetWorkspaceId();
-  const { data } = useGetWorkspaceDataById({ id: workspaceId });
+  const { data } = useGetWorkspaceDataById({ workspaceId });
   return (
     <nav className="bg-[#481349] flex items-center justify-between h-10 p-1.5">
       <div className="flex-1" />

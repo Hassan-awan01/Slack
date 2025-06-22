@@ -29,7 +29,7 @@ interface HeaderProps {
 
 export const Header = ({ title }: HeaderProps) => {
   const [value, setValue] = useState(title);
-
+  const [editOpen, setEditOpen] = useState(false);
   const workspaceId = useGetWorkspaceId();
   const { data: member } = useCurrentMember({ workspaceId });
   const channelId = useGetChannelId();
@@ -53,6 +53,7 @@ export const Header = ({ title }: HeaderProps) => {
       {
         onSuccess: () => {
           toast.success("Updated successfully");
+          setEditOpen(false);
         },
         onError: () => {
           toast.error("Failed to update");
@@ -100,7 +101,7 @@ export const Header = ({ title }: HeaderProps) => {
             </DialogHeader>
             <div className="px-4 pb-4 flex flex-col gap-y-2">
               {member?.role === "admin" ? (
-                <Dialog>
+                <Dialog open={editOpen} onOpenChange={setEditOpen}>
                   <DialogTrigger asChild>
                     <div className="px-5 py-4 bg-white rounded-lg border cursor-pointer hover:bg-gray-50">
                       <div className="flex items-center justify-between">

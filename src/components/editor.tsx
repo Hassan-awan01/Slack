@@ -76,13 +76,11 @@ const Editor = ({
             enter: {
               key: "Enter",
               handler: () => {
-                console.log("Hello");
                 const text = quill.getText();
                 const imageAdded = imageRef.current?.files?.[0] || null;
                 const isEmpty =
                   !imageAdded &&
                   text.replace("/<(.|\n)*?>/g", "").trim().length == 0;
-                console.log(isEmpty);
                 if (isEmpty) return;
                 submitRef.current?.({
                   body: JSON.stringify(quill.getContents()),
@@ -154,7 +152,12 @@ const Editor = ({
         ref={imageRef}
         className="hidden"
       />
-      <div className="flex flex-col border border-slate-200 rounded-md overflow-hidden focus-within:border-slate-500 focus-within:shadow-sm transition bg-white">
+      <div
+        className={cn(
+          "flex flex-col border border-slate-200 rounded-md overflow-hidden focus-within:border-slate-500 focus-within:shadow-sm transition bg-white",
+          disable && "opacity-50"
+        )}
+      >
         <div ref={containerRef} className="h-full ql-custom" />
         {!!image && (
           <div className="p-2">

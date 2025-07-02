@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentUser } from "@/features/auth/api/use-user-hook";
-import { UserButton } from "@/features/components/user-button";
+// import { UserButton } from "@/features/components/user-button";
 import { useWorkspace } from "@/features/workspace/api/use-workspace-hook";
 import { useCreateWorkspaceModel } from "@/features/workspace/store/use-create-workspace-model";
 import { useRouter } from "next/navigation";

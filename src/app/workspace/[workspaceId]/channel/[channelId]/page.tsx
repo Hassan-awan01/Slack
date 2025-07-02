@@ -14,7 +14,7 @@ const ChannelIdPage = () => {
   const { data: channel, isLoading: channelLoading } = useGetChannelById({
     channelId,
   });
-  const bottomRef = useRef<HTMLDivElement>(null);
+  // const bottomRef = useRef<HTMLDivElement>(null);
 
   const { results, status, loadMore } = useGetMessages({ channelId });
 

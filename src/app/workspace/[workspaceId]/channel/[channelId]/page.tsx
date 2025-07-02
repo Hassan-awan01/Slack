@@ -7,12 +7,14 @@ import { Header } from "./Header";
 import { ChatInput } from "./chat-input";
 import { useGetMessages } from "@/features/messages/api/use-get-messages-hook";
 import { MessageList } from "@/components/message-list";
+import { useRef } from "react";
 
 const ChannelIdPage = () => {
   const channelId = useGetChannelId();
   const { data: channel, isLoading: channelLoading } = useGetChannelById({
     channelId,
   });
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   const { results, status, loadMore } = useGetMessages({ channelId });
 

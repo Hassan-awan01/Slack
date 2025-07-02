@@ -25,11 +25,11 @@ interface EditorProps {
   defaultValue?: Delta | Op[];
   disable?: boolean;
   innerRef?: RefObject<Quill | null>;
-  variant: "create" | "update";
+  variant?: "create" | "update";
 }
 
 const Editor = ({
-  variant,
+  variant = "create",
   onSubmit,
   onCancel,
   disable = false,

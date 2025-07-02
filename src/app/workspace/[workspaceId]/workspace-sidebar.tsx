@@ -17,8 +17,10 @@ import { UserItem } from "./user-item";
 import { useCreateChannelModel } from "@/features/channels/store/use-create-channel-model";
 import { useMemo } from "react";
 import { useGetChannelId } from "@/hooks/use-Get-Channel-id";
+import { useGetMemberId } from "@/hooks/use-Get-member-id";
 
 export const WorkspaceSidebar = () => {
+  const memberId = useGetMemberId();
   const workspaceId = useGetWorkspaceId();
   const { data: workspaceData, isLoading: workspaceLoading } =
     useGetWorkspaceDataById({ workspaceId });
@@ -97,6 +99,7 @@ export const WorkspaceSidebar = () => {
             label={item.user.name}
             image={item.user.image}
             id={item._id}
+            variant={item._id === memberId ? "active" : "default"}
           />
         ))}
       </WorkspaceSection>

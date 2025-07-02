@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useCurrentMember } from "@/features/members/api/use-current-member";
 import { useGetWorkspaceId } from "@/hooks/use-Get-workspace-id";
 import { Loader } from "lucide-react";
+import { ConversationHero } from "@/app/workspace/[workspaceId]/member/[memberId]/conversation-hero";
 interface MessageListProps {
   channelName?: string;
   memberName?: string;
@@ -58,6 +59,7 @@ export const MessageList = ({
   const workspaceId = useGetWorkspaceId();
   const { data: member } = useCurrentMember({ workspaceId });
   //   console.log(variant, channelCreationTime, channelName);
+  // console.log(data);
 
   return (
     <div className="flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar">
@@ -91,6 +93,7 @@ export const MessageList = ({
                 threadCount={message.threadCount}
                 threadImage={message.threadImage}
                 threadTimestamp={message.threadTimestamp}
+                threadName={message.threadName}
                 updatedAt={message.updateAt}
                 createdAt={message._creationTime}
                 isEditing={editingId === message._id}
@@ -133,6 +136,9 @@ export const MessageList = ({
       )}
       {variant === "channel" && channelName && channelCreationTime && (
         <ChannelHero name={channelName} creationTime={channelCreationTime} />
+      )}
+      {variant === "conversation" && memberName && (
+        <ConversationHero name={memberName} image={memberImage} />
       )}
     </div>
   );

@@ -32,13 +32,22 @@ const populateThreads = async (
       timestamp: 0,
     };
   }
-
+  // console.log(lastMessage);
   const lastMessageUser = await populateUser(ctx, lastMessageMem.userId);
 
-  return {
+  const value = {
     count: threads.length,
     image: lastMessageUser?.image,
     timestamp: lastMessage._creationTime,
+  };
+
+  // console.log(value);
+
+  return {
+    count: value.count,
+    image: value.image,
+    timestamp: value.timestamp,
+    name: lastMessageUser?.name,
   };
 };
 
@@ -99,6 +108,78 @@ export const remove = mutation({
     return args.messageId;
   },
 });
+
+export const getById = query({
+  args: {
+    messageId: v.id("messages"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId == null) {
+      return null;
+    }
+
+    const message = await ctx.db.get(args.messageId);
+    if (!message) return null;
+
+    const member = await populateMember(ctx, message.memberId);
+    if (!member) return null;
+
+    const currentMember = await getMember(
+      ctx,
+      message.workspaceId,
+      member.userId
+    );
+    if (!currentMember) return null;
+
+    const user = await populateUser(ctx, member.userId);
+
+    if (!user) return null;
+
+    const reactions = await populateReactions(ctx, message._id);
+
+    const reactionsWihCount = reactions.map((reaction) => {
+      return {
+        ...reaction,
+        count: reactions.filter((r) => r.value === reaction.value).length,
+      };
+    });
+    const dedupedReactions = reactionsWihCount.reduce(
+      (acc, reaction) => {
+        const existingReaction = acc.find((r) => r.value === reaction.value);
+        if (existingReaction) {
+          existingReaction.memberIds = Array.from(
+            new Set([...existingReaction.memberIds, reaction.memberId])
+          );
+        } else {
+          acc.push({
+            ...reaction,
+            memberIds: [reaction.memberId],
+          });
+        }
+        return acc;
+      },
+      [] as ({
+        count: number;
+        memberIds: Id<"members">[];
+      } & Doc<"reactions">)[]
+    );
+    const reactionsWithoutMemberIdProperties = dedupedReactions.map(
+      ({ memberId, ...rest }) => rest
+    );
+
+    return {
+      ...message,
+      image: message.image
+        ? await ctx.storage.getUrl(message.image)
+        : undefined,
+      member,
+      user,
+      reactions: reactionsWithoutMemberIdProperties,
+    };
+  },
+});
+
 export const get = query({
   args: {
     channelId: v.optional(v.id("channels")),
@@ -148,6 +229,7 @@ export const get = query({
 
             const reactions = await populateReactions(ctx, message._id);
             const threads = await populateThreads(ctx, message._id);
+            // console.log(threads);
             const image = message.image
               ? await ctx.storage.getUrl(message.image)
               : undefined;
@@ -185,6 +267,19 @@ export const get = query({
             const reactionsWithoutMemberIdProperties = dedupedReactions.map(
               ({ memberId, ...rest }) => rest
             );
+            // const value = {
+            //   ...message,
+            //   image,
+            //   member,
+            //   user,
+            //   reactions: reactionsWithoutMemberIdProperties,
+            //   threadCount: threads.count,
+            //   threadImage: threads.image,
+            //   threadTimestamp: threads.timestamp,
+            // };
+
+            // console.log(value);
+
             return {
               ...message,
               image,
@@ -194,6 +289,7 @@ export const get = query({
               threadCount: threads.count,
               threadImage: threads.image,
               threadTimestamp: threads.timestamp,
+              threadName: threads.name,
             };
           })
         )

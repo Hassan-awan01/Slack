@@ -13,6 +13,8 @@ import { useRemoveMessage } from "@/features/messages/api/use-remove-message-hoo
 import { useConfirm } from "@/hooks/use-confirm";
 import { useToggleReaction } from "@/features/reactions/api/use-toggle-reaction-hook";
 import { Reactions } from "./reaction";
+import { usePanel } from "@/hooks/use-panel";
+import { ThreadBar } from "./thread-bar";
 const Renderer = dynamic(() => import("@/components/renderer"), {
   ssr: false,
 });
@@ -35,6 +37,7 @@ interface MessageProps {
   threadTimestamp?: number;
   threadCount?: number;
   threadImage?: string;
+  threadName?: string;
   image: string | null | undefined;
   body: Doc<"messages">["body"];
   reactions: Array<
@@ -66,18 +69,25 @@ export const Message = ({
   updatedAt,
   hideThreadButton,
   memberId,
+  threadName,
 }: MessageProps) => {
   const FormatFullDate = (date: Date) => {
     return `${isToday(date) ? "Today" : isYesterday(date) ? "Yesterday" : format(date, "MMM d, yyyy")} at ${format(date, "h:mm:ss a")}`;
   };
   const avatarFallback = authorName.charAt(0).toUpperCase();
-
   const { mutate: updateMessage, isPending: isUpdatingMessage } =
     useUpdateMessage();
   const { mutate: removeMessage, isPending: isRemovingMessage } =
     useRemoveMessage();
   const { mutate: toggleReaction, isPending: isTogglingReaction } =
     useToggleReaction();
+  const {
+    parentMessageId,
+    onOpenMessage,
+    onClose,
+    memberProfileId,
+    onOpenProfile,
+  } = usePanel();
 
   const handleUpdate = ({ body }: { body: string }) => {
     updateMessage(
@@ -107,6 +117,7 @@ export const Message = ({
       {
         onSuccess: () => {
           toast.success("Message Removes successfully");
+          if (parentMessageId === id) onClose();
         },
         onError: () => {
           toast.error("Failed to Delete Message");
@@ -166,6 +177,13 @@ export const Message = ({
                   </span>
                 ) : null}
                 <Reactions data={reactions} onChange={handleReaction} />
+                <ThreadBar
+                  threadCount={threadCount}
+                  threadImage={threadImage}
+                  threadTimestamp={threadTimestamp}
+                  threadName={threadName}
+                  onClick={() => onOpenMessage(id)}
+                />
               </div>
             )}
           </div>
@@ -176,7 +194,7 @@ export const Message = ({
               handleEdit={() => setEditingId(id)}
               handleReactions={handleReaction}
               handleDelete={handleRemove}
-              handleThread={() => {}}
+              handleThread={() => onOpenMessage(id)}
               handleThreadButton={hideThreadButton}
             />
           )}
@@ -196,12 +214,15 @@ export const Message = ({
         )}
       >
         <div className="flex items-start gap-3">
-          <div className="w-[40px] flex justify-center">
+          <button
+            className="w-[40px] flex justify-center"
+            onClick={() => onOpenProfile(memberId)}
+          >
             <Avatar className="w-10 h-10">
               <AvatarImage src={authorImage} />
               <AvatarFallback>{avatarFallback}</AvatarFallback>
             </Avatar>
-          </div>
+          </button>
           {isEditing ? (
             <div className="w-full h-full">
               <Editor
@@ -215,7 +236,10 @@ export const Message = ({
           ) : (
             <div className="flex flex-col w-full overflow-hidden">
               <div className="text-sm">
-                <button className="font-bold text-primary hover:underline">
+                <button
+                  className="font-bold text-primary hover:underline"
+                  onClick={() => onOpenProfile(memberId)}
+                >
                   {authorName}
                 </button>
                 <span>&nbsp;&nbsp;</span>
@@ -233,6 +257,12 @@ export const Message = ({
                 </span>
               ) : null}
               <Reactions data={reactions} onChange={handleReaction} />
+              <ThreadBar
+                threadCount={threadCount}
+                threadImage={threadImage}
+                threadTimestamp={threadTimestamp}
+                onClick={() => onOpenMessage(id)}
+              />
             </div>
           )}
         </div>
@@ -243,7 +273,7 @@ export const Message = ({
             handleEdit={() => setEditingId(id)}
             handleReactions={handleReaction}
             handleDelete={handleRemove}
-            handleThread={() => {}}
+            handleThread={() => onOpenMessage(id)}
             handleThreadButton={hideThreadButton}
           />
         )}

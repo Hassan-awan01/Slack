@@ -19,9 +19,8 @@ export default function Home() {
     if (workspaceId) router.replace(`workspace/${workspaceId}`);
     else if (!open && user) setOpen(true);
   }, [isLoading, workspaceId, open, setOpen, router, user]);
-  return (
-    <div>
-      <UserButton />
-    </div>
-  );
+  return null;
+  // <div>
+  //   <UserButton />
+  // </div>
 }
